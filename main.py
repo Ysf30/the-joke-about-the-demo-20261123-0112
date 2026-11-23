@@ -50,6 +50,7 @@ def main() -> int:
         raise SystemExit("verify fail: bytes on disk differ from the joke")
     print(f"wrote {len(JOKE)} chars ({len(data)} bytes) to {out}")
     print(f"sha256 {hashlib.sha256(data).hexdigest()}")
+    print(JOKE)
     return 0
 
 
