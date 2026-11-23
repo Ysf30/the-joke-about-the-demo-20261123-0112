@@ -41,7 +41,10 @@ def validate_joke(text: str) -> bytes:
         raise SystemExit(f"gate fail: {len(text)} code points, need 1..280")
     if not text.strip():
         raise SystemExit("gate fail: joke is blank")
-    return text.encode("utf-8")
+    data = text.encode("utf-8")
+    if data.endswith(b"\n"):
+        raise SystemExit("gate fail: trailing newline")
+    return data
 
 
 def main() -> int:
@@ -49,8 +52,11 @@ def main() -> int:
     out = Path(os.environ.get("OUTPUT_PATH", "/output/entry.txt"))
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(data)
-    if out.read_bytes() != data:
+    back = out.read_bytes()
+    if back != data:
         raise SystemExit("verify fail: bytes on disk differ from the joke")
+    if back.decode("utf-8") != JOKE:
+        raise SystemExit("verify fail: file does not decode to the joke")
     print(f"wrote {len(JOKE)} chars ({len(data)} bytes) to {out}")
     print(f"sha256: {hashlib.sha256(data).hexdigest()}")
     print(JOKE)
